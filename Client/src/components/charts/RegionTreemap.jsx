@@ -98,7 +98,7 @@ export default function TopicTrendChart() {
 
   return (
     <ChartCard title="📈 Topic Trend Analytics (Premium Line Chart)">
-      <svg ref={ref} className="w-full h-[360px]" />
+      <svg ref={ref} className="w-full h-96" />
     </ChartCard>
   );
 }

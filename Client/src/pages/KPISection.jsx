@@ -31,7 +31,7 @@ export default function KPISection() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ delay: i * 0.1, duration: 0.6 }}
           whileHover={{ scale: 1.08 }}
-          className="relative bg-gradient-to-br from-[#0f172a] to-[#020617]
+          className="relative bg-gray-900 from-[#0f172a] to-[#020617]
                      border border-white/10 rounded-xl p-4 shadow-xl
                      hover:shadow-[0_25px_60px_rgba(56,189,248,0.45)]"
         >
