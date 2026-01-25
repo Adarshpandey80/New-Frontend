@@ -1,15 +1,19 @@
-# DonutChart Data Fix - TODO List
+# Chart Fixes - TODO List
 
-## Steps:
-1. Add `sectorDistribution` controller function in `dataController.js` ✅
-2. Add `/sector` route in `dataRouter.js` ✅
-3. Update DonutChart to use new `/data/sector` endpoint ✅
-4. Add `topicDistribution` controller function in `dataController.js` ✅
-5. Add `/topic` route in `dataRouter.js` ✅
-6. RadarChart now uses working `/data/topic` endpoint ✅
-7. Fix LineChart NaN error - added logging, robust filtering, Number() conversion ✅
-8. Fix AreaChart NaN error - added logging, robust filtering, Number() conversion ✅
-9. Fix backend controllers to filter valid years (1900-2100) using $toInt ✅
+## Completed Fixes:
+1. ✅ Added sector data endpoint and fixed DonutChart
+2. ✅ Added topic data endpoint for RadarChart
+3. ✅ Fixed LineChart data and fullscreen
+4. ✅ Fixed AreaChart fullscreen
+5. ✅ Fixed BarChart fullscreen with ChartModal
+6. ✅ Fixed PieChart fullscreen with ChartModal
+7. ✅ Fixed RadarChart fullscreen with ChartModal
 
-## Status: Completed ✅
+## All charts now use:
+- ChartModal component for fullscreen mode
+- useChartDimensions hook for responsive sizing
+- draw() function for code reuse
+- ArrowsPointingOutIcon for fullscreen button
+
+## Status: All Fixed ✅
 

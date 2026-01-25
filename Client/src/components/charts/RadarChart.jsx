@@ -2,12 +2,20 @@ import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import axios from "axios";
 import ChartCard from "../../layout/ChartCard";
+import ChartModal from "../common/ChartModel";
+import useChartDimensions from "../../hooks/useChartDimensions";
+import { ArrowsPointingOutIcon } from "@heroicons/react/24/outline";
 
 const api = `${import.meta.env.VITE_BACKEND_URL}/data`;
 
 export default function RadarChart() {
-  const svgRef = useRef();
+  const containerRef = useRef();
+  const modalRef = useRef();
+  const { width, height } = useChartDimensions(containerRef);
+  const modalSize = useChartDimensions(modalRef);
+
   const [data, setData] = useState([]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     axios.get(`${api}/topic`).then(res => {
@@ -16,18 +24,23 @@ export default function RadarChart() {
   }, []);
 
   useEffect(() => {
-    if (!data.length) return;
+    if (width && data.length) draw(containerRef, width, 220);
+  }, [width, data]);
 
-    const width = 300;
-    const height = 300;
-    const levels = 5; // concentric circles
-    const radius = Math.min(width, height) / 2 - 40;
+  useEffect(() => {
+    if (modalSize.width && open)
+      draw(modalRef, modalSize.width, modalSize.height - 40);
+  }, [modalSize, open]);
 
-    const svg = d3.select(svgRef.current)
-                  .attr("width", width)
-                  .attr("height", height)
+  const draw = (ref, w, h) => {
+    const levels = 5;
+    const radius = Math.min(w, h) / 2 - 30;
+
+    const svg = d3.select(ref.current).select("svg")
+                  .attr("width", w)
+                  .attr("height", h)
                   .append("g")
-                  .attr("transform", `translate(${width/2},${height/2})`);
+                  .attr("transform", `translate(${w/2},${h/2})`);
 
     svg.selectAll("*").remove();
 
@@ -82,12 +95,29 @@ export default function RadarChart() {
        .attr("font-size", 10)
        .attr("fill", "#f1f5f9")
        .style("text-anchor", "middle");
-
-  }, [data]);
+  };
 
   return (
-    <ChartCard title="Topic Radar Chart">
-      <svg ref={svgRef}></svg>
-    </ChartCard>
+    <>
+      <ChartCard
+        title="Topic Radar Chart"
+        action={
+          <ArrowsPointingOutIcon
+            onClick={() => setOpen(true)}
+            className="w-5 h-5 cursor-pointer hover:text-cyan-400"
+          />
+        }
+      >
+        <div ref={containerRef} className="w-full h-full">
+          <svg />
+        </div>
+      </ChartCard>
+
+      <ChartModal open={open} onClose={() => setOpen(false)}>
+        <div ref={modalRef} className="w-full h-full">
+          <svg />
+        </div>
+      </ChartModal>
+    </>
   );
 }

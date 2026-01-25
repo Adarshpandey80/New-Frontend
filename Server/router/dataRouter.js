@@ -12,5 +12,7 @@ router.get("/swot", dataController.swotAnalysis);
 router.get("/sector", dataController.sectorDistribution);
 router.get("/topic", dataController.topicDistribution);
 router.get("/kpi", dataController.getKPI);
+router.get("/region-distribution", dataController.getRegionDistribution);
+router.get("/topic-distribution", dataController.getTopicDistribution);
 
 module.exports = router;

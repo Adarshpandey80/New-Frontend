@@ -200,6 +200,46 @@ const getKPI = async (req, res) => {
   }
 };
 
+const  getRegionDistribution = async (req, res) => {
+    try {
+      const data = await dataModel.aggregate([
+        {
+          $group: {
+            _id: "$region",
+            value: { $sum: 1 }
+          }
+        },
+        { $match: { _id: { $ne: "" } } },
+        { $sort: { value: -1 } }
+      ]);
+
+      const formatted = data.map(item => ({
+        label: item._id,
+        value: item.value
+      }));
+
+      res.status(200).json(formatted);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  };
+
+  const getTopicDistribution = async (req, res) => {
+  try {
+    const data = await dataModel.aggregate([
+      { $group: { _id: "$topic", value: { $sum: 1 } } },
+      { $match: { _id: { $ne: "" } } },
+      { $sort: { value: -1 } },
+      { $limit: 12 }
+    ]);
+
+    res.json(data.map(d => ({ label: d._id, value: d.value })));
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
 
 
 module.exports = {
@@ -211,7 +251,9 @@ module.exports = {
       swotAnalysis,
       sectorDistribution,
       topicDistribution,
-      getKPI 
+      getKPI ,
+      getRegionDistribution ,
+      getTopicDistribution
 }
 
 

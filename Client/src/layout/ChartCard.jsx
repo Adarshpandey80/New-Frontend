@@ -1,23 +1,21 @@
 import { motion } from "framer-motion";
-import { useRef } from "react";
 
-export default function ChartCard({ title, children, action }) {
-  const ref = useRef();
-
+export default function ChartCard({ title, children }) {
   return (
     <motion.div
-      ref={ref}
-      className="relative w-full min-h-[280px] overflow-hidden
-                 rounded-2xl p-4 bg-gradient-to-br from-[#0f172a] to-[#020617]
-                 border border-white/10 shadow-xl"
       whileHover={{ scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 120 }}
+      className="relative bg-gradient-to-br from-[#0f172a] to-[#020617] rounded-xl shadow-2xl border border-white/10 backdrop-blur-xl overflow-hidden"
     >
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="text-sm font-semibold">{title}</h3>
-        {action}
+      {/* Header */}
+      <div className="flex justify-between items-center px-4 py-2 border-b border-white">
+        <h3 className="text-cyan-300 font-semibold tracking-wide text-sm">
+          {title}
+        </h3>
       </div>
 
-      <div className="w-full h-[220px] flex justify-center items-center overflow-hidden">
+      {/* Chart container */}
+      <div className="h-150  ">
         {children}
       </div>
     </motion.div>

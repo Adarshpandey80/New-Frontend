@@ -85,84 +85,95 @@
 
 
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
 import axios from "axios";
 import ChartCard from "../../layout/ChartCard";
+import ChartModal from "../common/ChartModel";
+import useChartDimensions from "../../hooks/useChartDimensions";
 import { ArrowsPointingOutIcon } from "@heroicons/react/24/outline";
-import useResizeObserver from "../../hooks/useResizeObserver";
 
-const api = `${import.meta.env.VITE_BACKEND_URL}/data`;
+const api = `${import.meta.env.VITE_BACKEND_URL}/data/intensity-year`;
 
 export default function AreaChart() {
-  const wrapperRef = useRef();
-  const svgRef = useRef();
-  const dimensions = useResizeObserver(wrapperRef);
+  const containerRef = useRef();
+  const modalRef = useRef();
+  const svgRef = useRef(null);
+  const { width, height } = useChartDimensions(containerRef);
+  const modalSize = useChartDimensions(modalRef);
+
   const [data, setData] = useState([]);
-  const [full, setFull] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    axios.get(`${api}/intensity-year`).then(res => {
-      const cleaned = res.data
-        .map(d => ({ year: +d._id, value: +d.value }))
-        .filter(d => d.year > 1900 && d.value > 0);
-
-      setData(cleaned);
+    axios.get(api).then(res => {
+      setData(res.data.map(d => ({
+        year: +d._id,
+        value: +d.value
+      })));
     });
   }, []);
 
   useEffect(() => {
-    if (!dimensions || !data.length) return;
-    drawChart();
-  }, [data, dimensions, full]);
+    if (width && data.length) draw(containerRef, width, 220);
+  }, [width, data]);
 
-  const drawChart = () => {
-    const width = full ? 900 : dimensions.width;
-    const height = full ? 450 : 220;
-    const margin = { top: 30, right: 25, bottom: 40, left: 45 };
+  useEffect(() => {
+    if (modalSize.width && open)
+      draw(modalRef, modalSize.width, modalSize.height - 40);
+  }, [modalSize, open]);
 
-    const svg = d3.select(svgRef.current)
-      .attr("width", width)
-      .attr("height", height);
+  const draw = (ref, w, h) => {
+    const margin = { top: 30, right: 20, bottom: 40, left: 50 };
+    const svg = d3.select(ref.current).select("svg")
+      .attr("width", w)
+      .attr("height", h);
 
     svg.selectAll("*").remove();
 
+    // Define gradient
+    const defs = svg.append("defs");
+    const gradient = defs.append("linearGradient")
+      .attr("id", "grad")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "0%")
+      .attr("y2", "100%");
+
+    gradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#38bdf8")
+      .attr("stop-opacity", 0.8);
+
+    gradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#0ea5e9")
+      .attr("stop-opacity", 0.2);
+
     const x = d3.scaleLinear()
       .domain(d3.extent(data, d => d.year))
-      .range([margin.left, width - margin.right]);
+      .range([margin.left, w - margin.right]);
 
     const y = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.value)])
-      .nice()
-      .range([height - margin.bottom, margin.top]);
+      .domain([0, d3.max(data, d => d.value)]).nice()
+      .range([h - margin.bottom, margin.top]);
 
     const area = d3.area()
       .x(d => x(d.year))
       .y0(y(0))
       .y1(d => y(d.value))
-      .curve(d3.curveMonotoneX);
+      .curve(d3.curveCatmullRom);
 
-    svg.append("path")
+    const path = svg.append("path")
       .datum(data)
-      .attr("fill", "url(#gradient)")
+      .attr("fill", "url(#grad)")
       .attr("d", area)
-      .attr("opacity", 0)
-      .transition()
-      .duration(1000)
-      .attr("opacity", 1);
+      .attr("opacity", 0);
 
-    svg.append("path")
-      .datum(data)
-      .attr("fill", "none")
-      .attr("stroke", "#38bdf8")
-      .attr("stroke-width", 2)
-      .attr("d", d3.line()
-        .x(d => x(d.year))
-        .y(d => y(d.value))
-      );
+    path.transition().duration(1200).attr("opacity", 1);
 
     svg.append("g")
-      .attr("transform", `translate(0,${height - margin.bottom})`)
+      .attr("transform", `translate(0,${h - margin.bottom})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")));
 
     svg.append("g")
@@ -171,34 +182,26 @@ export default function AreaChart() {
   };
 
   return (
-    <ChartCard
-      title="Intensity Trend"
-      action={
-        <ArrowsPointingOutIcon
-          onClick={() => setFull(true)}
-          className="w-5 h-5 cursor-pointer hover:text-cyan-400"
-        />
-      }
-    >
-      <div ref={wrapperRef} className="w-full h-full">
-        <svg ref={svgRef}></svg>
-      </div>
-
-      {/* FULLSCREEN */}
-      {full && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="bg-[#020617] p-6 rounded-xl relative w-[95%] max-w-6xl">
-            <button
-              onClick={() => setFull(false)}
-              className="absolute top-4 right-5 text-white text-xl"
-            >✕</button>
-
-            <div className="w-full h-[480px]">
-              <svg ref={svgRef}></svg>
-            </div>
-          </div>
+    <>
+      <ChartCard
+        title="Intensity Trend"
+        action={
+          <ArrowsPointingOutIcon
+            onClick={() => setOpen(true)}
+            className="w-5 h-5 cursor-pointer hover:text-cyan-400"
+          />
+        }
+      >
+        <div ref={containerRef} className="w-full h-full">
+          <svg  ref={svgRef} className="w-full h-full"  />
         </div>
-      )}
-    </ChartCard>
+      </ChartCard>
+
+      <ChartModal open={open} onClose={() => setOpen(false)}>
+        <div ref={modalRef} className="w-full h-full">
+          <svg ref={svgRef} className="w-full h-full"  />
+        </div>
+      </ChartModal>
+    </>
   );
 }
