@@ -29,7 +29,7 @@ export default function LineChart() {
   }, []);
 
   useEffect(() => {
-    if (width && data.length) draw(containerRef, width, 220);
+    if (width && data.length) draw(containerRef, width, 520);
   }, [width, data]);
 
   useEffect(() => {
