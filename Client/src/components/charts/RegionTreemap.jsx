@@ -18,7 +18,7 @@ export default function TopicTrendChart() {
 
     const width = 900;
     const height = 360;
-    const margin = { top: 40, right: 40, bottom: 40, left: 60 };
+    const margin = { top: 20, right: 20, bottom: 20, left: 30 };
 
     const svg = d3.select(ref.current);
     svg.selectAll("*").remove();
@@ -97,7 +97,7 @@ export default function TopicTrendChart() {
   }, [data]);
 
   return (
-    <ChartCard title="📈 Topic Trend Analytics (Premium Line Chart)">
+    <ChartCard title="📈 Topic Trend Analytics ">
       <svg ref={ref} className="w-full h-96" />
     </ChartCard>
   );
