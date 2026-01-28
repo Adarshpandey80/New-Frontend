@@ -12,7 +12,7 @@ export default function BarChart() {
   const containerRef = useRef();
   const modalRef = useRef();
 
-  const { width, height } = useChartDimensions(containerRef);
+  const { width } = useChartDimensions(containerRef);
   const modalSize = useChartDimensions(modalRef);
 
   const [data, setData] = useState([]);
@@ -20,21 +20,23 @@ export default function BarChart() {
 
   useEffect(() => {
     axios.get(api).then(res => {
-      setData(res.data.map(d => ({ label: d._id, value: +d.value })));
+      setData(res.data.map(d => ({ name: d._id, value: +d.value })));
     });
   }, []);
 
   useEffect(() => {
-    if (width && height && data.length) draw(containerRef, width, height);
-  }, [width, height, data]);
+    if (width && data.length) draw(containerRef, width, 520);
+  }, [width, data]);
 
   useEffect(() => {
-    if (modalSize.width && modalSize.height && open)
-      draw(modalRef, modalSize.width, modalSize.height - 50);
+    if (modalSize.width && open) {
+      draw(modalRef, modalSize.width, modalSize.height - 40);
+    }
   }, [modalSize, open]);
 
   const draw = (ref, w, h) => {
-    const margin = { top: 40, right: 30, bottom: 80, left: 60 };
+    const margin = { top: 30, right: 40, bottom: 80, left: 60 };
+
     const svg = d3.select(ref.current).select("svg")
       .attr("width", w)
       .attr("height", h);
@@ -42,9 +44,9 @@ export default function BarChart() {
     svg.selectAll("*").remove();
 
     const x = d3.scaleBand()
-      .domain(data.map(d => d.label))
+      .domain(data.map(d => d.name))
       .range([margin.left, w - margin.right])
-      .padding(0.3);
+      .padding(0.35);
 
     const y = d3.scaleLinear()
       .domain([0, d3.max(data, d => d.value)]).nice()
@@ -52,28 +54,29 @@ export default function BarChart() {
 
     const tooltip = d3.select(ref.current)
       .append("div")
-      .attr("class", "absolute bg-black text-white text-xs px-3 py-1 rounded shadow")
+      .attr("class", "absolute bg-black text-white px-3 py-1 rounded-md text-xs pointer-events-none")
       .style("opacity", 0);
 
     svg.selectAll("rect")
       .data(data)
-      .join("rect")
-      .attr("x", d => x(d.label))
+      .enter()
+      .append("rect")
+      .attr("x", d => x(d.name))
       .attr("y", y(0))
       .attr("width", x.bandwidth())
       .attr("height", 0)
-      .attr("fill", "#22c55e")
       .attr("rx", 6)
+      .attr("fill", "#facc15")
       .on("mousemove", (e, d) => {
-        tooltip
-          .style("opacity", 1)
-          .style("left", e.pageX + 10 + "px")
-          .style("top", e.pageY - 25 + "px")
-          .html(`<b>${d.label}</b>: ${d.value}`);
+        tooltip.style("opacity", 1)
+          .html(`${d.name} : ${d.value}`)
+          .style("left", e.offsetX + 15 + "px")
+          .style("top", e.offsetY - 20 + "px");
       })
       .on("mouseout", () => tooltip.style("opacity", 0))
       .transition()
-      .duration(1200)
+      .duration(1000)
+      .ease(d3.easeBounceOut)
       .attr("y", d => y(d.value))
       .attr("height", d => y(0) - y(d.value));
 
@@ -81,7 +84,7 @@ export default function BarChart() {
       .attr("transform", `translate(0,${h - margin.bottom})`)
       .call(d3.axisBottom(x))
       .selectAll("text")
-      .attr("transform", "rotate(-40)")
+      .attr("transform", "rotate(-35)")
       .style("text-anchor", "end");
 
     svg.append("g")
@@ -91,17 +94,22 @@ export default function BarChart() {
 
   return (
     <>
-      <ChartCard title="🌍 Country Likelihood" action={
-        <ArrowsPointingOutIcon onClick={() => setOpen(true)}
-          className="w-5 h-5 cursor-pointer hover:text-cyan-400" />
-      }>
-        <div ref={containerRef} className="relative w-full h-[420px]">
+      <ChartCard
+        title="Top Countries by Likelihood"
+        action={
+          <ArrowsPointingOutIcon
+            onClick={() => setOpen(true)}
+            className="w-5 h-5 cursor-pointer hover:text-cyan-400"
+          />
+        }
+      >
+        <div ref={containerRef} className="relative w-full h-full">
           <svg className="w-full h-full" />
         </div>
       </ChartCard>
 
       <ChartModal open={open} onClose={() => setOpen(false)}>
-        <div ref={modalRef} className="relative w-full h-[80vh]">
+        <div ref={modalRef} className="relative w-full h-full">
           <svg className="w-full h-full" />
         </div>
       </ChartModal>
