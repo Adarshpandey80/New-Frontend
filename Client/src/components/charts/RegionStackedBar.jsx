@@ -68,7 +68,9 @@ export default function RegionStackedBar() {
 
   return (
     <ChartCard title="🌍 Region Distribution (Stacked Bar)">
-      <svg ref={ref} className="w-full h-50" />
+      <div className="w-full h-full overflow-hidden">
+        <svg ref={ref} className="w-full h-full max-w-full block" />
+      </div>
     </ChartCard>
   );
 }

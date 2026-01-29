@@ -24,9 +24,11 @@ export default function BarChart() {
     });
   }, []);
 
+  const { height } = useChartDimensions(containerRef);
+
   useEffect(() => {
-    if (width && data.length) draw(containerRef, width, 520);
-  }, [width, data]);
+    if (width && height && data.length) draw(containerRef, width, height);
+  }, [width, height, data]);
 
   useEffect(() => {
     if (modalSize.width && open) {
@@ -103,8 +105,8 @@ export default function BarChart() {
           />
         }
       >
-        <div ref={containerRef} className="relative w-full h-full">
-          <svg className="w-full h-full" />
+        <div ref={containerRef} className="relative w-full h-full overflow-hidden">
+          <svg className="w-full h-full max-w-full block" />
         </div>
       </ChartCard>
 

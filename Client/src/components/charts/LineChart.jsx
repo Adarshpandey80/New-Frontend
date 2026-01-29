@@ -121,8 +121,8 @@ export default function LineChart() {
         <ArrowsPointingOutIcon onClick={() => setOpen(true)}
           className="w-5 h-5 cursor-pointer hover:text-cyan-400" />
       }>
-        <div ref={containerRef} className="w-full h-[420px] relative">
-          <svg className="w-full h-full" />
+        <div ref={containerRef} className="w-full h-full relative overflow-hidden">
+          <svg className="w-full h-full max-w-full block" />
         </div>
       </ChartCard>
 

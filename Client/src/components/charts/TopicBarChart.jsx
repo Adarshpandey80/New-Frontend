@@ -61,7 +61,9 @@ export default function TopicBarChart() {
 
   return (
     <ChartCard title="📌 Topic Distribution (Horizontal Bar)">
-      <svg ref={ref} className="w-full h-96" />
+      <div className="w-full h-full overflow-hidden">
+        <svg ref={ref} className="w-full h-full max-w-full block" />
+      </div>
     </ChartCard>
   );
 }

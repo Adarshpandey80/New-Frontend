@@ -5,7 +5,7 @@ export default function ChartCard({ title, action, children }) {
     <motion.div
       whileHover={{ scale: 1.01 }}
       transition={{ type: "spring", stiffness: 120 }}
-      className="relative bg-gray-900 rounded-xl shadow-2xl border border-white/10 backdrop-blur-xl overflow-hidden flex flex-col h-full min-h-[70vh]"
+      className="relative bg-gray-900 rounded-xl shadow-2xl border border-white/10 backdrop-blur-xl overflow-hidden flex flex-col h-full min-h-full"
     >
       {/* Header */}
       <div className="flex justify-between items-center px-4 py-3 border-b border-white/10 shrink-0">
